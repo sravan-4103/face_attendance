@@ -1,0 +1,34 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Project Generated Data & Encodings
+encodings.pkl
+attendance.csv
+
+# Face Images (Exclude all personal face photos and intruder captures)
+known_faces/*
+!known_faces/.gitkeep
+
+intruders/*
+!intruders/.gitkeep
+
+# IDE and Editor configuration
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Operating System files
+Thumbs.db
+Desktop.ini
+.DS_Store
