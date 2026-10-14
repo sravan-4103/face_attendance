@@ -7,7 +7,7 @@ import csv
 import pickle
 import time
 
-# --- Configuration ---
+# Configuration
 KNOWN_FACES_DIR = 'known_faces'
 INTRUDER_DIR = 'intruders'
 ATTENDANCE_FILE = 'attendance.csv'
@@ -15,23 +15,23 @@ ENCODINGS_FILE = 'encodings.pkl'
 TOLERANCE = 0.6
 INTRUDER_COOLDOWN = 5  # seconds
 
-# --- Liveness (Blink) Settings ---
+# Liveness (Blink) Settings
 EYE_ASPECT_RATIO_THRESHOLD = 0.23  # If eyes are closed, ratio falls below this
 EYE_ASPECT_RATIO_CONSEC_FRAMES = 3 # How many frames eyes must be closed to count as a blink (3 ≈ 100ms)
 
-# --- Setup Directories ---
+# Setup Directories
 if not os.path.exists(INTRUDER_DIR): os.makedirs(INTRUDER_DIR)
 
-# --- Load Encodings ---
+# Load Encodings
 if not os.path.exists(ENCODINGS_FILE):
-    print(f"❌ Error: {ENCODINGS_FILE} not found. Run 'save_encodings.py' first.")
+    print(f"[ERROR] {ENCODINGS_FILE} not found. Run save_encodings.py first.")
     exit()
 
 with open(ENCODINGS_FILE, "rb") as f:
     known_face_encodings, known_face_names = pickle.load(f)
-print(f"✅ Loaded {len(known_face_names)} known faces.")
+print(f"[INFO] Loaded {len(known_face_names)} known face(s).")
 
-# --- Load Today's Attendance ---
+# Load Today's Attendance
 marked_names = set()
 today_str = datetime.now().strftime("%Y-%m-%d")
 if os.path.isfile(ATTENDANCE_FILE):
@@ -46,7 +46,7 @@ else:
         writer = csv.writer(f)
         writer.writerow(["Name", "Date", "Time"])
 
-# --- Helper: Calculate Eye Ratio ---
+# Helper: Calculate Eye Ratio
 def get_ear(eye_points):
     # Vertical distances
     A = np.linalg.norm(eye_points[1] - eye_points[5])
@@ -56,7 +56,7 @@ def get_ear(eye_points):
     # Compute ratio
     return (A + B) / (2.0 * C)
 
-# --- Runtime Variables ---
+# Runtime Variables
 video_capture = cv2.VideoCapture(0)
 last_intruder_save_time = 0
 
@@ -65,7 +65,7 @@ blink_counters = {}
 # Track verified users: Set { "Name" }
 verified_real_users = set()
 
-print("📸 Camera started. Please Blink to mark attendance.")
+print("[INFO] Camera started. Blink to record attendance. Press 'q' to quit.")
 
 while True:
     ret, frame = video_capture.read()
@@ -94,22 +94,22 @@ while True:
             if matches[best_match_index]:
                 name = known_face_names[best_match_index]
 
-        # --- Scale coordinates back up ---
+        # Scale coordinates back up
         top, right, bottom, left = [v * 4 for v in face_location]
 
         if name == "Unknown":
-            # --- INTRUDER LOGIC ---
+            # INTRUDER LOGIC
             color = (0, 0, 255) # Red
             label = "Unknown"
             
             if time.time() - last_intruder_save_time > INTRUDER_COOLDOWN:
                 ts = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
                 cv2.imwrite(os.path.join(INTRUDER_DIR, f"intruder_{ts}.jpg"), frame)
-                print(f"🚨 Intruder saved: {ts}")
+                print(f"[ALERT] Unknown face captured: {ts}")
                 last_intruder_save_time = time.time()
 
         else:
-            # --- KNOWN USER LOGIC ---
+            # KNOWN USER LOGIC 
             
             # Initialize blink counter for this person if not exists
             if name not in blink_counters: blink_counters[name] = 0
@@ -130,7 +130,7 @@ while True:
 
             # 3. Determine Status
             if name in verified_real_users:
-                # --- LIVE & VERIFIED ---
+                #  LIVE & VERIFIED 
                 if name not in marked_names:
                     marked_names.add(name)
                     # Save to CSV
@@ -138,12 +138,12 @@ while True:
                         writer = csv.writer(f)
                         now = datetime.now()
                         writer.writerow([name, now.strftime("%Y-%m-%d"), now.strftime("%H:%M:%S")])
-                    print(f"✅ Verified & Marked: {name}")
+                    print(f"[ATTENDANCE] Marked {name} at {now.strftime('%H:%M:%S')}")
                 
                 color = (0, 255, 0) # Green
                 label = f"{name} (Verified)"
             else:
-                # --- WAITING FOR BLINK ---
+                # WAITING FOR BLINK
                 color = (0, 165, 255) # Orange
                 label = "Please Blink..."
 

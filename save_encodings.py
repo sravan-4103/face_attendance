@@ -10,13 +10,13 @@ names = []
 
 if not os.path.exists(KNOWN_FACES_DIR):
     os.makedirs(KNOWN_FACES_DIR)
-    print(f"📁 Created '{KNOWN_FACES_DIR}' directory.")
+    print(f"[INFO] Created directory: {KNOWN_FACES_DIR}")
 
 image_files = [f for f in os.listdir(KNOWN_FACES_DIR) if f.lower().endswith(('.jpg', '.png', '.jpeg'))]
 
 if not image_files:
-    print(f"⚠️ Warning: No image files (.jpg, .png, .jpeg) found in '{KNOWN_FACES_DIR}'.")
-    print(f"👉 Please add face images named like 'YourName.jpg' into '{KNOWN_FACES_DIR}/' before running.")
+    print(f"[WARNING] No image files (.jpg, .png, .jpeg) found in '{KNOWN_FACES_DIR}'.")
+    print(f"[INFO] Add face images named like 'Name.jpg' into '{KNOWN_FACES_DIR}/' and rerun.")
     exit()
 
 for filename in image_files:
@@ -26,11 +26,11 @@ for filename in image_files:
     if encoding:
         encodings.append(encoding[0])
         names.append(os.path.splitext(filename)[0])
-        print(f"✅ Encoded: {filename}")
+        print(f"[INFO] Encoded: {filename}")
     else:
-        print(f"❌ No face detected in: {filename}")
+        print(f"[WARNING] No face detected in: {filename}")
 
 with open("encodings.pkl", "wb") as f:
     pickle.dump((encodings, names), f)
 
-print(f"✅ Successfully encoded {len(names)} face(s) to 'encodings.pkl'.")
+print(f"[INFO] Done. Encoded {len(names)} face(s) -> encodings.pkl")
