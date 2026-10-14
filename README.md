@@ -14,32 +14,6 @@ Face attendance system that uses facial recognition and blink detection to verif
 
 ---
 
-## System Workflow
-
-```mermaid
-flowchart TD
-    A[Webcam Video Stream] --> B[Downscale Frame 0.25x]
-    B --> C[Detect Face Locations & 68-Point Landmarks]
-    C --> D[Compute 128D Face Encodings]
-    D --> E{Match Against Known Encodings?}
-    
-    E -- No (Unknown) --> F[Mark as Intruder]
-    F --> G{Cooldown Expired > 5s?}
-    G -- Yes --> H[Save Snapshot to intruders/ directory]
-    G -- No --> I[Display Warning Overlay]
-    
-    E -- Yes (Known Face) --> J[Extract Eye Landmarks]
-    J --> K[Compute Eye Aspect Ratio - EAR]
-    K --> L{Blink Detected? EAR < 0.23 for 3 frames}
-    L -- No --> M[Display Please Blink prompt]
-    L -- Yes --> N[Verify Real Human Presence]
-    N --> O{Already marked today?}
-    O -- No --> P[Append Record to attendance.csv]
-    O -- Yes --> Q[Display Verified status]
-```
-
----
-
 ## Prerequisites & Setup
 
 ### 1. Clone the Repository
